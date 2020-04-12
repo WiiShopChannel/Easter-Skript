@@ -1,0 +1,118 @@
+#Easter Resource Pack
+#- Adds an easter egg as a custom model data for eggs. (meaning it doesn't replace the egg texture, 
+#- but allows for the easter egg texture to be used)
+#- Download link to put in your server properties:
+#- https://download.nodecdn.net/containers/nodecraft/minepack/18cbfa1ce12f8299c4fb714a707ccd58.zip
+#- sha1 hash for the Resource Pack:
+#- cd84c4fd31644d4e3022545fd63db44cc5d2177f
+
+#- Example:
+#-
+#- resource-pack=https://download.nodecdn.net/containers/nodecraft/minepack/18cbfa1ce12f8299c4fb714a707ccd58.zip
+#- resource-pack-sha1=cd84c4fd31644d4e3022545fd63db44cc5d2177f
+
+
+#Instructions
+
+#- The bunny is caught by right clicking on it with an empty hand. It is unable to be damaged.
+#- Catch it within the BunnyDespawnTime to be rewarded.
+#- Once you catch it, eggs will drop. Right click with these eggs to receive special prizes.
+#- This is fully customizable. Edit all options below.
+
+
+options:
+
+    #Easter Bunny Settings
+
+    #Optionally make the Easter Bunny a killer bunny variant, making it attack players.
+    KillerBunny: false
+
+    #The time it takes for the bunny to spawn. Can be seconds, minutes, hours, or days.
+    BunnySpawnInterval: 10 seconds 
+
+    #The level of swiftness that will be applied to the bunny. This affects how fast it runs. Set to 0 for none.
+    BunnySpeed: 1
+
+    #The Level of strength that will be applied to the bunny. This is only used when KillerBunny is set to true. Set to 0 for none.
+    BunnyStrength: 1 
+
+    #The time (in seconds) before the bunny despawns. set to 0 for no despawn.
+    BunnyDespawnTime: 10 
+
+    #The name of the bunny.
+    BunnyName: "&eEaster Bunny" 
+
+
+
+    #Easter Egg Settings
+
+    #Minimum number of eggs the bunny drops. Must be less than MaxEggDrop.
+    MinEggDrop: 1 
+
+    #Maximum number of eggs the bunny drops. Must be more than MinEggDrop.
+    MaxEggDrop: 3 
+    
+    #The lore of the easter egg.
+    EggLore: "&d&oAn easter surprise!" and "&d&oUse this egg for special prizes."
+
+    #The items that a player will receive when opening an easter egg.
+    EggDrop: diamond and chicken spawn egg
+    
+
+
+
+
+#DO NOT EDIT ANYTHING BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING
+#-----------------------------------------------------------------------#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+every {@BunnySpawnInterval}:
+    set {_player} to a random element out of all players
+    spawn rabbit at location of {_player}
+    set spawned rabbit's name to {@BunnyName}
+    add "{Age: 0, Invulnerable: 1, PersistenceRequired: 1}" to nbt of spawned rabbit
+    if {@KillerBunny} is true:
+        add "{RabbitType: 99}" to nbt of spawned rabbit
+        if {@BunnyStrength} > 0:
+            apply strength {@BunnyStrength} to spawned rabbit for 999 days
+    if {@BunnySpeed} > 0:
+        apply swiftness {@BunnySpeed} to spawned rabbit for 999 days
+    set metadata value "easter" of spawned rabbit to true
+    if {@BunnyDespawnTime} > 0:
+        wait {@BunnyDespawnTime} seconds
+        set metadata value "easter" of spawned rabbit to false
+        kill spawned rabbit
+
+on right click on rabbit:
+    if meta data value "easter" of event-entity is true:
+        if player's tool is air:
+            kill event-entity
+        if meta data value "easter" of event-entity is true:
+            drop (random number between {@MinEggDrop} and {@MaxEggDrop}) of egg named "&eEaster Egg" with lore {@EggLore} with custom model data 1 at event-entity's location
+
+
+
+on right click with egg:
+    if event-player's tool's custom model data is 1:
+        cancel event
+        add {@EggDrop} to inventory of player
+        remove 1 of tool from tool
+
+
+
+
+
+
